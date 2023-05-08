@@ -1,5 +1,6 @@
 import { createBot, Intents, startBot } from "./deps.ts"
 import { Secret } from "./secret.ts"
+import * as atcoder from "./atcoder.ts"
 
 const bot = createBot({
     token: Secret.DISCORD_TOKEN,
@@ -18,5 +19,9 @@ bot.events.messageCreate = (b, message) => {
         })
     }
 }
+
+// getSubmissions("ZOIZOI", 1682435173);
+// atcoder.getContests()
+// atcoder.getStandings("abc301")
 
 await startBot(bot)
