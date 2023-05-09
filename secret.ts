@@ -1,6 +1,6 @@
-import { config } from "./deps.ts";
+import { config, env } from "./deps.ts";
 
-if (!Deno.env.has("DENO_DEPLOY")) {
+if (!env.has("DENO_DEPLOY")) {
   config({
     export: true,
     path: "./.env.local",
