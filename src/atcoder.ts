@@ -1,4 +1,5 @@
-import { DateTime, datetime, DOMParser } from "../deps.ts";
+import { DOMParser } from "../deps.ts";
+import { DateTime } from "./datetime.ts";
 
 async function getSubmissions(user: string, from_second: number) {
   const response = await fetch(
@@ -47,7 +48,7 @@ async function getScheduledContests() {
   ).forEach((element) => {
     // if(!element.hasChildNodes()) return;
     const contest: ScheduledContest = {
-      startTime: datetime(element.children[0].textContent).toZonedTime("Asia/Tokyo"),
+      startTime: new DateTime(element.children[0].textContent),
       name: element.children[1].children[2].textContent,
       url: `https://atcoder.jp${
         element.children[1].children[2].getAttribute("href")
@@ -58,6 +59,13 @@ async function getScheduledContests() {
     // console.log(contest);
     result.push(contest);
   });
+  result.push({
+    startTime: new DateTime("2023/05/09 23:59 +0900"),
+    name: "テスト",
+    url: "https://example.com/",
+    duration: "01:40",
+    ratedRange: "~1999"
+});
   return result;
 }
 

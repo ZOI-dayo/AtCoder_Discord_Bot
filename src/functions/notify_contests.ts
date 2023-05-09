@@ -1,4 +1,4 @@
-import { BigString, Bot, datetime, diffInMillisec } from "../../deps.ts";
+import { BigString, Bot } from "../../deps.ts";
 import * as atcoder from "../atcoder.ts";
 
 let registered: string[] = [];
@@ -41,7 +41,7 @@ export const registerContests = async (bot: Bot, guilds: BigString[]) => {
                       value: contest.ratedRange,
                     },
                   ],
-                  timestamp: contest.startTime.toMilliseconds(),
+                  timestamp: contest.startTime.data,
                   title: contest.name,
                   url: contest.url,
                 },
@@ -52,28 +52,22 @@ export const registerContests = async (bot: Bot, guilds: BigString[]) => {
         // コンテストのある日の朝9時にDiscordにアナウンス
         setTimeout(
           notifyContestMessage,
-          diffInMillisec(
-            datetime(),
-            contest.startTime.subtract({ hour: 9 }).startOfDay().add({
-              hour: 9,
-            }),
-          ),
+          contest.startTime.startOfDay().add({hour: 22, minute: 0}).distanseFromNow()
+          // Math.floor((contest.startTime + 1000*60*60*9) / 1000*60*60*24) * 1000*60*60*24 - Date.now(),
         );
         console.log(
           `コンテスト「${contest.name}」のアナウンスを${
-            contest.startTime.subtract({ hour: 9 }).startOfDay().add({
-              hour: 9 + 9, // startOfDay()がUTCの0時、つまり日本ではUTCでの-9時、つまり結局UTC表記で-18時の値になるらしいので、18足す(バグやばすぎ、どうにかしたい)
-            }).add({hour: 9}).format("MM/dd HH:mm ZZ")
-          }に予約しました`,
+            contest.startTime.startOfDay().add({hour: 22, minute: 0}).format("HH:mm")
+            // (Math.floor((contest.startTime + 1000*60*60*9) / 1000*60*60*24) * 1000*60*60*24 - Date.now()).toString()
+          }に予約しました`, // メッセージが間違ってる気がする
         );
+        // console.log(contest.startTime.toZonedTime("Asia/Tokyo").hour)
         registered.push(contest.url);
         // コンテスト開始5分後にリストから削除
         setTimeout(
           () => registered = registered.filter((url) => url != contest.url),
-          diffInMillisec(
-            datetime(),
-            contest.startTime.add({ minute: 5 }),
-          ),
+          contest.startTime.add({minute: 5}).distanseFromNow()
+          // contest.startTime + 1000 * 60 * 5 - Date.now()
         );
       });
     });
