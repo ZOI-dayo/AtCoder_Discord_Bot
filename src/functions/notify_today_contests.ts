@@ -5,32 +5,30 @@ let registered: string[] = [];
 
 export const registerContests = async (bot: Bot, guilds: BigString[]) => {
   (await atcoder.getScheduledContests())
-  /*
-    .filter((c) => !registered.includes(c.url)).filter((c) =>
-      c.startTime.isBefore(datetime().add({ day: 7 }))
-    )
-    */
     .forEach((contest) => {
       guilds.forEach((guild) => {
         // コンテスト通知を送る、という関数
-        const notifyContestMessage = () => {
+        const notifyContestMessage = (mode: "today" | "soon") => {
           bot.helpers.getChannels(guild).then((channels) => {
             const channel = channels.find((c) =>
+              // 送信先チャンネルはここで指定
               c.name?.includes("atcoder通知") ?? false
             );
             if (channel == null) return;
             bot.helpers.sendMessage(channel.id, {
-              content: `本日${
-                contest.startTime.format("HH:mm")
-              }、AtCoderでコンテストが開催されます\nぜひ参加してください!`,
+              content: mode == "today"
+                ? `本日${
+                  contest.startTime.format("HH:mm")
+                }、AtCoderでコンテストが開催されます`
+                : `30分後にAtCoderでコンテストが開催されます\n参加予定の方は頑張ってください!`,
               embeds: [
                 {
                   author: {
                     name: "AtCoder",
                     url: contest.url,
                   },
-                  color: 8472940,
-                  description: "ぜひ参加してください",
+                  color: 0x337ab7,
+                  description: mode == "today" ? "ぜひ参加してください" : "皆さん頑張ってください!",
                   fields: [
                     {
                       name: "時間",
@@ -49,25 +47,26 @@ export const registerContests = async (bot: Bot, guilds: BigString[]) => {
             });
           });
         };
+
         // コンテストのある日の朝9時にDiscordにアナウンス
+        const announce_date = contest.startTime.startOfDay().add({
+          hour: 9,
+          minute: 0,
+        });
         setTimeout(
           notifyContestMessage,
-          contest.startTime.startOfDay().add({hour: 22, minute: 0}).distanseFromNow()
-          // Math.floor((contest.startTime + 1000*60*60*9) / 1000*60*60*24) * 1000*60*60*24 - Date.now(),
+          announce_date.distanseFromNow(),
         );
         console.log(
           `コンテスト「${contest.name}」のアナウンスを${
-            contest.startTime.startOfDay().add({hour: 22, minute: 0}).format("HH:mm")
-            // (Math.floor((contest.startTime + 1000*60*60*9) / 1000*60*60*24) * 1000*60*60*24 - Date.now()).toString()
-          }に予約しました`, // メッセージが間違ってる気がする
+            announce_date.format("HH:mm")
+          }に予約しました`,
         );
-        // console.log(contest.startTime.toZonedTime("Asia/Tokyo").hour)
         registered.push(contest.url);
         // コンテスト開始5分後にリストから削除
         setTimeout(
           () => registered = registered.filter((url) => url != contest.url),
-          contest.startTime.add({minute: 5}).distanseFromNow()
-          // contest.startTime + 1000 * 60 * 5 - Date.now()
+          contest.startTime.add({ minute: 5 }).distanseFromNow(),
         );
       });
     });
