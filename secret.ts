@@ -1,10 +1,10 @@
-import { config } from "./deps.ts"
+import { config } from "./deps.ts";
 
 config({
-    export: true,
-    path: "./.env.local",
-})
+  export: true,
+  path: "./.env.local",
+});
 
 export const Secret = {
-    DISCORD_TOKEN: Deno.env.get("DISCORD_TOKEN")!,
-}
+  DISCORD_TOKEN: Deno.env.get("DISCORD_TOKEN")!,
+};
