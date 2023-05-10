@@ -11,14 +11,3 @@ export { env }
 
 // dom
 export { DOMParser } from "https://deno.land/x/deno_dom/deno-dom-wasm.ts";
-
-// datetime
-/*
-export {
-  DateTime,
-  datetime,
-  diffInMillisec,
-} from "https://deno.land/x/ptera/mod.ts";
-*/
-
-// 多分datetimeをLocaleで扱うやつ、自作ライブラリで作った方がいいな

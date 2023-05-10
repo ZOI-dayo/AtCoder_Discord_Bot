@@ -102,7 +102,7 @@ async function getScheduledContests() {
   ).forEach((element) => {
     // if(!element.hasChildNodes()) return;
     const contest: ScheduledContest = {
-      startTime: new DateTime(element.children[0].textContent),
+      startTime: DateTime.from(element.children[0].textContent),
       name: element.children[1].children[2].textContent,
       url: `https://atcoder.jp${
         element.children[1].children[2].getAttribute("href")
@@ -114,7 +114,7 @@ async function getScheduledContests() {
     result.push(contest);
   });
   result.push({
-    startTime: new DateTime("2023/05/10 23:59 +0900"),
+    startTime: DateTime.from("2023/05/11 21:00 +0900"),
     name: "テスト",
     url: "https://example.com/",
     duration: "01:40",

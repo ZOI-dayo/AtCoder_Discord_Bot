@@ -1,7 +1,11 @@
 import { createBot, Intents, startBot } from "./deps.ts";
 import { Secret } from "./secret.ts";
-import { registerUser } from "./src/functions/broadcast_submissions.ts";
-import { registerContests } from "./src/functions/notify_today_contests.ts";
+import { DateTime, DAY, HOUR } from "./src/datetime.ts";
+import { checkNewSubmission, checkSubmissionInterval } from "./src/functions/broadcast_submissions.ts";
+import {
+  contestsNotifyTime,
+  checkNewContest,
+} from "./src/functions/notify_today_contests.ts";
 
 const bot = createBot({
   token: Secret.DISCORD_TOKEN,
@@ -12,12 +16,19 @@ const bot = createBot({
 
       // 当日のコンテストをお知らせ
       // 0秒後と、あとは1時間間隔で実行
-      registerContests(bot, payload.guilds)
-      setInterval(() => registerContests(bot, payload.guilds), 1000 * 60 * 60);
+
+      DateTime.registerScheduledIntervalEvent(
+        () => checkNewContest(bot, payload.guilds),
+        DateTime.nextInterval(contestsNotifyTime, DAY),
+        DAY,
+      );
 
       // ユーザーの提出を表示
-      registerUser(bot, payload.guilds, "ZOIZOI");
-
+      DateTime.registerScheduledIntervalEvent(
+        () => checkNewSubmission(bot, payload.guilds, "ZOIZOI"),
+        DateTime.nextInterval({hour: 0}, DateTime.deltaToMillisec(checkSubmissionInterval)),
+        DateTime.deltaToMillisec(checkSubmissionInterval),
+      );
     },
   },
 });
