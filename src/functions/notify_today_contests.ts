@@ -59,6 +59,8 @@ export const checkNewContest = async (bot: Bot, guilds: BigString[]) => {
       };
 
       // コンテストのある日の朝9時にDiscordにアナウンス
+      notifyContestMessage("today");
+      /*
       const announce_date = contest.startTime.startOfDay().add(contestsNotifyTime);
       DateTime.registerEvent(() => {
         notifyContestMessage("today");
@@ -73,6 +75,7 @@ export const checkNewContest = async (bot: Bot, guilds: BigString[]) => {
         () => registered = registered.filter((url) => url != contest.url),
         contest.startTime.add({ minute: 5 }),
       );
+      */
       /*
       setTimeout(
         () => notifyContestMessage("today"),
