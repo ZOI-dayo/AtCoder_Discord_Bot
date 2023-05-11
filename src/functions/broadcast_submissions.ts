@@ -1,6 +1,6 @@
 import { BigString, Bot } from "../../deps.ts";
 import * as atcoder from "../atcoder.ts";
-import { TimeDelta } from "../datetime.ts";
+import { DateTime, TimeDelta } from "../datetime.ts";
 
 export const checkSubmissionInterval: TimeDelta = {
   hour: 1,
@@ -16,7 +16,7 @@ export const checkNewSubmission = async (
 
   // 単位: [s]
   // あとでcheckSubmissionDeltaを使った実装に変更
-  const from_second = Math.floor(Date.now() / 1000) - 60 * 60 * 24 * 7;
+  const from_second = Math.floor((Date.now() - DateTime.deltaToMillisec(checkSubmissionInterval)) / 1000);
 
   const submissions = await atcoder.getSubmissions(
     username,
