@@ -1,12 +1,10 @@
 import { BigString, Bot } from "../../deps.ts";
 import * as atcoder from "../atcoder.ts";
-import { DateTime, DAY, TimeDelta } from "../datetime.ts";
-
-let registered: string[] = [];
+import { DAY, TimeDelta } from "../datetime.ts";
 
 export const contestsNotifyTime: TimeDelta = {
-  hour: 13,
-  minute: 0,
+  hour: 18,
+  minute: 45,
 };
 export const checkNewContest = async (bot: Bot, guilds: BigString[]) => {
   console.log("新規コンテストがないか確認中...");
