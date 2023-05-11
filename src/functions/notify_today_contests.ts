@@ -5,7 +5,7 @@ import { DateTime, DAY, TimeDelta } from "../datetime.ts";
 let registered: string[] = [];
 
 export const contestsNotifyTime: TimeDelta = {
-  hour: 10,
+  hour: 11,
   minute: 0,
 };
 export const checkNewContest = async (bot: Bot, guilds: BigString[]) => {
