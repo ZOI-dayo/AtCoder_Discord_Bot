@@ -86,6 +86,9 @@ export class DateTime {
     };
     console.log(`初回実行は${begin.distanseFromNow()}ms後です`);
     setTimeout(run, begin.distanseFromNow());
+    for(let i=0; i<begin.distanseFromNow()/1000; i++) {
+      setTimeout(() => console.log(`${i}秒経過...`), i * 1000); 
+    }
   }
   static registerIntervalEvent(callback: () => void, interval: number) {
     DateTime.registerScheduledIntervalEvent(
