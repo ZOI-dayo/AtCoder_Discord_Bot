@@ -36,4 +36,4 @@ jobs:
       #   run: deno fmt --check
 
       - name: Build
-        run: deno compile --unstable --allow-read --allow-net --lite ./main.ts 
+        run: deno compile --unstable --allow-read --allow-net ./main.ts 
