@@ -34,37 +34,7 @@ export const checkNewSubmission = async (
           );
           if (channel == null) return;
           bot.helpers.sendMessage(channel.id, {
-            content: `${submission.user_id}さんがACしました!`,
-            embeds: [
-              {
-                author: {
-                  name: "AtCoder",
-                  url:
-                    `https://atcoder.jp/contests/${submission.contest_id}/submissions/${submission.id}`,
-                },
-                color: 0x337ab7,
-                description:
-                  `${submission.user_id}さんが、${problem.contest_id}の${problem.title}をACしました!`,
-                fields: [
-                  {
-                    name: "言語",
-                    value: submission.language,
-                  },
-                  {
-                    name: "得点",
-                    value: submission.point.toString(),
-                  },
-                  {
-                    name: "実行時間",
-                    value: submission.execution_time.toString() + "ms",
-                  },
-                ],
-                timestamp: submission.epoch_second * 1000,
-                title: problem.title,
-                url:
-                  `https://atcoder.jp/contests/${submission.contest_id}/submissions/${submission.id}`,
-              },
-            ],
+            content: `${submission.user_id}さんが、${problem.contest_id}の${problem.title}をACしました!`
           });
         });
       });
