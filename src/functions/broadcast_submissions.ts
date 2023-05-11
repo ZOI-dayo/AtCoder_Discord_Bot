@@ -3,7 +3,7 @@ import * as atcoder from "../atcoder.ts";
 import { TimeDelta } from "../datetime.ts";
 
 export const checkSubmissionInterval: TimeDelta = {
-  hour: 24 * 7,
+  hour: 1,
 };
 
 export const checkNewSubmission = async (
