@@ -3,8 +3,8 @@ import * as atcoder from "../atcoder.ts";
 import { DAY, TimeDelta } from "../datetime.ts";
 
 export const contestsNotifyTime: TimeDelta = {
-  hour: 18,
-  minute: 45,
+  hour: 7,
+  minute: 0,
 };
 export const checkNewContest = async (bot: Bot, guilds: BigString[]) => {
   console.log("新規コンテストがないか確認中...");
