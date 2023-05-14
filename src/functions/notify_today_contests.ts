@@ -9,6 +9,7 @@ export const contestsNotifyTime: TimeDelta = {
 export const checkNewContest = async (bot: Bot, guilds: BigString[]) => {
   console.log("新規コンテストがないか確認中...");
   const contests = (await atcoder.getScheduledContests()).filter((c) =>
+    0 < c.startTime.distanseFromNow() &&
     c.startTime.distanseFromNow() < DAY
   );
   if(contests.length > 1) console.log(`今日開催予定のコンテストが見つかりました: ${contests}`)
