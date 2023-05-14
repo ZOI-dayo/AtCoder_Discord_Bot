@@ -3,8 +3,10 @@ import * as atcoder from "../atcoder.ts";
 import { DateTime, TimeDelta } from "../datetime.ts";
 
 export const checkSubmissionInterval: TimeDelta = {
-  hour: 1,
+  minute: 1,
 };
+
+let last_check = Math.floor(Date.now() / 1000);
 
 export const checkNewSubmission = async (
   bot: Bot,
@@ -16,11 +18,12 @@ export const checkNewSubmission = async (
 
   // 単位: [s]
   // あとでcheckSubmissionDeltaを使った実装に変更
-  const from_second = Math.floor((Date.now() - DateTime.deltaToMillisec(checkSubmissionInterval)) / 1000);
+  // const from_second = Math.floor((Date.now() - DateTime.deltaToMillisec(checkSubmissionInterval)) / 1000);
 
   const submissions = await atcoder.getSubmissions(
     username,
-    from_second,
+    // from_second,
+    last_check,
   );
   submissions.filter((submission) => submission.result == "AC").forEach(
     (submission) => {
@@ -38,6 +41,7 @@ export const checkNewSubmission = async (
           });
         });
       });
+      last_check = Math.max(last_check, submission.epoch_second + 1);
     },
   );
 };
