@@ -1,12 +1,13 @@
-import { BigString, Bot } from "../../deps.ts";
+import { Bot } from "../../deps.ts";
 import * as atcoder from "../atcoder.ts";
 import { DAY, TimeDelta } from "../datetime.ts";
+import * as db from "../database.ts";
 
 export const contestsNotifyTime: TimeDelta = {
   hour: 7,
   minute: 0,
 };
-export const checkNewContest = async (bot: Bot, guilds: BigString[]) => {
+export const checkNewContest = async (bot: Bot, guilds: bigint[]) => {
   console.log("新規コンテストがないか確認中...");
   const contests = (await atcoder.getScheduledContests()).filter((c) =>
     0 < c.startTime.distanseFromNow() &&
@@ -15,13 +16,9 @@ export const checkNewContest = async (bot: Bot, guilds: BigString[]) => {
   if(contests.length > 1) console.log(`今日開催予定のコンテストが見つかりました: ${contests}`)
   contests.forEach((contest) => {
     guilds.forEach((guild) => {
-      // コンテスト通知を送る、という関数
+      // コンテスト通知を送る、という関
       const notifyContestMessage = async (mode: "today" | "soon") => {
-        const channels = await bot.helpers.getChannels(guild);
-        const channel = channels.find((c) =>
-          // 送信先チャンネルはここで指定
-          c.name?.includes("atcoder通知") ?? false
-        );
+        const channel = await bot.helpers.getChannel(db.getBotChannel(guild));
         if (channel == null) return;
         bot.helpers.sendMessage(channel.id, {
           content: mode == "today"
@@ -29,6 +26,7 @@ export const checkNewContest = async (bot: Bot, guilds: BigString[]) => {
               contest.startTime.format("HH:mm")
             }、AtCoderでコンテストが開催されます`
             : `30分後にAtCoderでコンテストが開催されます\n参加予定の方は頑張ってください!`,
+            // こんなことするよりURL埋め込みの方がいい...?
           embeds: [
             {
               author: {

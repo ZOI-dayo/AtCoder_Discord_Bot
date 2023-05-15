@@ -1,10 +1,20 @@
-import { createBot, Intents, startBot } from "./deps.ts";
-import { Secret } from "./secret.ts";
-import { DateTime, DAY, HOUR } from "./src/datetime.ts";
-import { checkNewSubmission, checkSubmissionInterval } from "./src/functions/broadcast_submissions.ts";
 import {
-  contestsNotifyTime,
+  ApplicationCommandOptionTypes,
+  createBot,
+  Intents,
+  InteractionResponseTypes,
+  startBot,
+} from "./deps.ts";
+import { Secret } from "./secret.ts";
+import * as db from "./src/database.ts";
+import { DateTime, DAY } from "./src/datetime.ts";
+import {
+  checkNewSubmission,
+  checkSubmissionInterval,
+} from "./src/functions/broadcast_submissions.ts";
+import {
   checkNewContest,
+  contestsNotifyTime,
 } from "./src/functions/notify_today_contests.ts";
 
 const bot = createBot({
@@ -26,15 +36,47 @@ const bot = createBot({
       // ユーザーの提出を表示
       DateTime.registerScheduledIntervalEvent(
         () => checkNewSubmission(bot, payload.guilds, "ZOIZOI"),
-        DateTime.nextInterval({hour: 0}, DateTime.deltaToMillisec(checkSubmissionInterval)),
+        DateTime.nextInterval(
+          { hour: 0 },
+          DateTime.deltaToMillisec(checkSubmissionInterval),
+        ),
         DateTime.deltaToMillisec(checkSubmissionInterval),
       );
+
+      // command
+      bot.helpers.createGlobalApplicationCommand({
+        name: "atcoder",
+        description: "AtCoderのBotの設定コマンドです",
+        options: [
+          {
+            type: ApplicationCommandOptionTypes.SubCommand,
+            name: "setchannel",
+            description: "Botが投稿するチャンネルを指定します",
+            options: [],
+          },
+        ],
+      });
+    },
+    async interactionCreate(client, interaction) {
+      if (interaction.data?.name === "atcoder") {
+        if (interaction.data?.options?.[0].name === "setchannel") {
+          db.setBotChannel(interaction.guildId!, interaction.channelId!);
+          return await client.helpers.sendInteractionResponse(
+            interaction.id,
+            interaction.token,
+            {
+              type: InteractionResponseTypes.ChannelMessageWithSource,
+              data: { content: "設定完了!" },
+            },
+          );
+        }
+      }
     },
   },
 });
 
 bot.events.messageCreate = (bot, message) => {
-  if (message.content === "!neko") {
+  if (message.content === "") {
     bot.helpers.sendMessage(message.channelId, {
       content: "にゃーん",
     });

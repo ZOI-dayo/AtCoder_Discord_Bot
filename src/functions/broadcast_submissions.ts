@@ -1,6 +1,7 @@
 import { BigString, Bot } from "../../deps.ts";
 import * as atcoder from "../atcoder.ts";
-import { DateTime, TimeDelta } from "../datetime.ts";
+import { TimeDelta } from "../datetime.ts";
+import * as db from "../database.ts";
 
 export const checkSubmissionInterval: TimeDelta = {
   minute: 1,
@@ -10,7 +11,7 @@ let last_check = Math.floor(Date.now() / 1000);
 
 export const checkNewSubmission = async (
   bot: Bot,
-  guilds: BigString[],
+  guilds: bigint[],
   username: string,
 ) => {
   const problems = await atcoder.getProblems();
@@ -29,17 +30,12 @@ export const checkNewSubmission = async (
     (submission) => {
       const problem = problems.find((p) => p.id == submission.problem_id);
       if (problem == undefined) return;
-      guilds.forEach((guild) => {
-        bot.helpers.getChannels(guild).then((channels) => {
-          const channel = channels.find((c) =>
-            // 送信先チャンネルはここで指定
-            c.name?.includes("atcoder通知") ?? false
-          );
-          if (channel == null) return;
+      guilds.forEach(async (guild) => {
+          const channel = await bot.helpers.getChannel(db.getBotChannel(guild));
+        
           bot.helpers.sendMessage(channel.id, {
             content: `${submission.user_id}さんが、${problem.contest_id}の${problem.title}をACしました!`
           });
-        });
       });
       last_check = Math.max(last_check, submission.epoch_second + 1);
     },
