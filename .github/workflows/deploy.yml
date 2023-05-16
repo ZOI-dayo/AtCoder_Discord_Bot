@@ -19,7 +19,7 @@ permissions:
   contents: read
 
 jobs:
-  test:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -33,7 +33,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
-            cd ~/projects/atcoder-discord-bot
-            screen -S atcoder-discord-bot -X stuff $'\003'
-            git pull origin main
-            ./start.sh
+            cd ~/projects/atcoder-discord-bot \
+            && screen -S atcoder-discord-bot -X stuff $'\003' \
+            && git pull \
+            && ./start.sh
