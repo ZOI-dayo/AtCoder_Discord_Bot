@@ -28,4 +28,4 @@ jobs:
             cd ~/projects/atcoder-discord-bot \
             ; screen -S atcoder-discord-bot -X stuff $'\003' \
             ; git pull \
-            ; ./start.sh
+            ; ./run.sh
