@@ -13,3 +13,5 @@ export { env }
 export { DOMParser } from "https://deno.land/x/deno_dom/deno-dom-wasm.ts";
 
 export { DB } from "https://deno.land/x/sqlite/mod.ts";
+
+export { createHash } from "https://deno.land/std@0.90.0/hash/mod.ts";

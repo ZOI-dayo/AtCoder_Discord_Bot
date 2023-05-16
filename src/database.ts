@@ -1,4 +1,4 @@
-import {BigString, DB} from "../deps.ts";
+import {DB} from "../deps.ts";
 
 const filename = "bot_data.db";
 
@@ -36,3 +36,43 @@ export const setBotChannel = (guild: bigint, channel: bigint) => {
 
     db.close();
 }
+
+// ---
+
+let schoolsInitialized = false;
+const initSchools = (db: DB) => {
+    db.query("CREATE TABLE IF NOT EXISTS schools(id INTEGER PRIMARY KEY AUTOINCREMENT, guild INTEGER, name TEXT, category TEXT)");
+    channelsInitialized = true;
+}
+
+export const getSchoolData = (guild: bigint) : {name: string, category: "junior" | "high"} | undefined => {
+    const db = new DB(filename);
+    if(!schoolsInitialized) initSchools(db);
+
+    const guild_data = db.query("SELECT * FROM schools WHERE guild=?", [guild]);
+    db.close();
+    if(guild_data.length == 0) {
+        console.warn("学校が登録されていません");
+        return undefined;
+    } else{
+        return {
+            name: guild_data[0][2] as string,
+            category: guild_data[0][3] as "junior" | "high",
+        };
+    }
+}
+export const setSchoolData = (guild: bigint, name: string, category: "junior" | "high") => {
+    const db = new DB(filename);
+    if(!schoolsInitialized) initSchools(db);
+
+    const guild_data = db.query("SELECT * FROM schools WHERE guild=?", [guild]);
+    if(guild_data.length == 0) {
+        db.query("INSERT INTO schools(guild,name,category) VALUES(?,?,?)", [guild, name, category]);
+    } else {
+        db.query("UPDATE schools SET name = ?, category = ? WHERE guild = ?", [name, category, guild]);
+    }
+
+    db.close();
+}
+
+// ---

@@ -1,8 +1,8 @@
-import { DOMParser } from "../deps.ts";
+import { createHash, DOMParser } from "../deps.ts";
 import { DateTime } from "./datetime.ts";
 
 // AtCoder Problemsから、特定ユーザーの一定期間におけるすべての提出を取得する
-async function getSubmissions(user: string, from_second: number) {
+export async function getSubmissions(user: string, from_second: number) {
   const response = await (await fetch(
     `https://kenkoooo.com/atcoder/atcoder-api/v3/user/submissions?user=${user}&from_second=${from_second}`,
   )).json();
@@ -33,7 +33,7 @@ async function getSubmissions(user: string, from_second: number) {
 }
 
 // AtCoder Problemsから、これまでに出題されたすべての問題を取得する
-async function getProblems() {
+export async function getProblems() {
   const response = await (await fetch(
     `https://kenkoooo.com/atcoder/resources/merged-problems.json`,
   )).json();
@@ -63,7 +63,7 @@ async function getProblems() {
 
 // AtCoder Problemsから、開催済みのすべてのコンテストのリストを取得する
 // 過去データしか返さないことに注意
-async function getContests() {
+export async function getContests() {
   type Contest = {
     id: string;
     start_epoch_second: number;
@@ -79,7 +79,7 @@ async function getContests() {
 }
 
 // AtCoder公式ページの「予定されたコンテスト」欄を取得する
-async function getScheduledContests() {
+export async function getScheduledContests() {
   const response = await (await fetch("https://atcoder.jp/contests/?lang=en"))
     .text();
   const document = new DOMParser().parseFromString(response, "text/html");
@@ -123,7 +123,7 @@ async function getScheduledContests() {
   return result;
 }
 
-async function getStandings(contest: string) {
+export async function getStandings(contest: string) {
   // 最近のアップデートのせいでログインしないと見れない
   // Cookie食べさせる?
   const response =
@@ -133,4 +133,39 @@ async function getStandings(contest: string) {
   return response;
 }
 
-export { getContests, getProblems, getScheduledContests, getStandings, getSubmissions };
+type AJLSchoolData = {
+  rank: number;
+  name: string;
+  prefectures: string;
+  score: number;
+  players: string[];
+  hash: string;
+};
+
+// AJL
+export async function getAJLSchoolData(
+  year: number,
+  category: "junior" | "high",
+  schoolName: string,
+): Promise<AJLSchoolData> {
+  const response =
+    await (await fetch(
+      `https://img.atcoder.jp/ajl${year}/output_${category}_school.html`,
+    ))
+      .text();
+  const document = new DOMParser().parseFromString(response, "text/html");
+  console.log(document?.textContent);
+  const schoolElement = Array.from(
+    document?.getElementsByTagName("tbody")[0].children!,
+  ).find((elem) => elem.children[1].innerText == schoolName);
+  return {
+    rank: parseInt(schoolElement?.children[0].innerText!),
+    name: schoolName,
+    prefectures: schoolElement?.children[2].innerText!,
+    score: parseInt(schoolElement?.children[3].innerText!),
+    players: Array.from(schoolElement?.children[4].children!).map((p) =>
+      p.innerText
+    ),
+    hash: createHash("sha256").update(response).toString(),
+  };
+}
