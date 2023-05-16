@@ -1,4 +1,4 @@
-import { BigString, Bot } from "../../deps.ts";
+import { Bot } from "../../deps.ts";
 import * as atcoder from "../atcoder.ts";
 import { TimeDelta } from "../datetime.ts";
 import * as db from "../database.ts";
@@ -17,13 +17,8 @@ export const checkNewSubmission = async (
   const problems = await atcoder.getProblems();
   console.log("新規提出がないかを確認中...");
 
-  // 単位: [s]
-  // あとでcheckSubmissionDeltaを使った実装に変更
-  // const from_second = Math.floor((Date.now() - DateTime.deltaToMillisec(checkSubmissionInterval)) / 1000);
-
   const submissions = await atcoder.getSubmissions(
     username,
-    // from_second,
     last_check,
   );
   submissions.filter((submission) => submission.result == "AC").forEach(
