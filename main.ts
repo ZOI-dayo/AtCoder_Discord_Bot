@@ -111,14 +111,6 @@ const bot = createBot({
           },
         ],
       });
-
-      payload.guilds.forEach(guild => {
-        const schoolData = db.getSchoolData(guild);
-        if(schoolData === undefined) return;
-        getAJLSchoolData(DateTime.now().year, schoolData.category, schoolData.name).then(
-          (e) => console.log(e),
-        );
-      });
     },
     async interactionCreate(client, interaction) {
       if (interaction.data?.name === "atcoder") {
