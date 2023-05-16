@@ -75,12 +75,4 @@ const bot = createBot({
   },
 });
 
-bot.events.messageCreate = (bot, message) => {
-  if (message.content === "") {
-    bot.helpers.sendMessage(message.channelId, {
-      content: "にゃーん",
-    });
-  }
-};
-
 await startBot(bot);
