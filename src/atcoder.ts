@@ -156,8 +156,7 @@ export async function getAJLSchools(
   const response =
     await (await cache_fetch(
       `https://img.atcoder.jp/ajl${year}/output_${category}_school.html`,
-    ))
-    .text();
+    ));
   const document = new DOMParser().parseFromString(response, "text/html");
   console.log(document?.textContent);
   const schoolElement = Array.from(
