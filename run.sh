@@ -1,2 +1,4 @@
 cd `dirname $0`
-screen -d -S atcoder-discord-bot -m deno task start
+DATE=`date +%Y-%m-%d-%H-%M-%S`
+screen -d -S atcoder-discord-bot -m bash -c "deno task start | tee ./log/${DATE}.log"
+
