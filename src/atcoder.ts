@@ -1,5 +1,6 @@
 import { createHash, DOMParser } from "../deps.ts";
 import { DateTime } from "./datetime.ts";
+import { cache_fetch } from "./fetch.ts";
 
 // AtCoder Problemsから、特定ユーザーの一定期間におけるすべての提出を取得する
 export async function getSubmissions(user: string, from_second: number) {
@@ -143,29 +144,34 @@ type AJLSchoolData = {
 };
 
 // AJL
-export async function getAJLSchoolData(
+export async function getAJLSchoolData(year: number, category: "junior" | "high", schoolName: string): Promise<AJLSchoolData | undefined> {
+  return (await getAJLSchools(year, category)).find(s => s.name == schoolName);
+}
+
+// あまりに遅ければcacheする
+export async function getAJLSchools(
   year: number,
   category: "junior" | "high",
-  schoolName: string,
-): Promise<AJLSchoolData> {
+): Promise<Array<AJLSchoolData>> {
   const response =
-    await (await fetch(
+    await (await cache_fetch(
       `https://img.atcoder.jp/ajl${year}/output_${category}_school.html`,
     ))
-      .text();
+    .text();
   const document = new DOMParser().parseFromString(response, "text/html");
   console.log(document?.textContent);
   const schoolElement = Array.from(
     document?.getElementsByTagName("tbody")[0].children!,
-  ).find((elem) => elem.children[1].innerText == schoolName);
-  return {
-    rank: parseInt(schoolElement?.children[0].innerText!),
-    name: schoolName,
-    prefectures: schoolElement?.children[2].innerText!,
-    score: parseInt(schoolElement?.children[3].innerText!),
-    players: Array.from(schoolElement?.children[4].children!).map((p) =>
+  );
+  const hash = createHash("sha256").update(response).toString();
+  return schoolElement.map(s => {return {
+    rank: parseInt(s?.children[0].innerText!),
+    name: s?.children[1].innerText!,
+    prefectures: s?.children[2].innerText!,
+    score: parseInt(s?.children[3].innerText!),
+    players: Array.from(s?.children[4].children!).map((p) =>
       p.innerText
     ),
-    hash: createHash("sha256").update(response).toString(),
-  };
+    hash
+  }});
 }

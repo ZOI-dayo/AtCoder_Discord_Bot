@@ -1,6 +1,5 @@
 import {
   ApplicationCommandOptionTypes,
-  ApplicationCommandTypes,
   createBot,
   Intents,
   InteractionResponseTypes,
@@ -8,16 +7,13 @@ import {
 } from "./deps.ts";
 import { Secret } from "./secret.ts";
 import * as db from "./src/database.ts";
-import { DateTime, DAY } from "./src/datetime.ts";
-import {
-  checkNewSubmission,
-  checkSubmissionInterval,
-} from "./src/functions/submissions.ts";
+import { DateTime, DAY, HOUR } from "./src/datetime.ts";
+import { getAJLSchoolData } from "./src/atcoder.ts";
 import {
   checkNewContest,
   contestsNotifyTime,
 } from "./src/functions/notify_contest.ts";
-import { getAJLSchoolData } from "./src/atcoder.ts";
+import { checkAJLRankChanged } from "./src/functions/ajl_notify.ts";
 
 const bot = createBot({
   token: Secret.DISCORD_TOKEN,
@@ -36,6 +32,7 @@ const bot = createBot({
       );
 
       // ユーザーの提出を表示
+      /*
       DateTime.registerScheduledIntervalEvent(
         () => checkNewSubmission(bot, payload.guilds, "ZOIZOI"),
         DateTime.nextInterval(
@@ -44,6 +41,17 @@ const bot = createBot({
         ),
         DateTime.deltaToMillisec(checkSubmissionInterval),
       );
+      */
+
+      // console.log(payload.guilds);
+      checkAJLRankChanged(bot, payload.guilds)
+      /*
+      DateTime.registerScheduledIntervalEvent(
+        () => checkAJLRankChanged(bot, payload.guilds),
+        DateTime.nextInterval({hour:0}, HOUR),
+        HOUR,
+      );
+      */
 
       // command
       bot.helpers.createGlobalApplicationCommand({
@@ -70,7 +78,6 @@ const bot = createBot({
                     name: "学校名",
                     description: "正式名称で入力してください",
                     required: true,
-                    // 多分、 https://www.mext.go.jp/b_menu/toukei/mext_01087.html あたりを使って選択肢出した方がいいよね...
                   },
                   {
                     type: ApplicationCommandOptionTypes.String,
@@ -158,12 +165,22 @@ const bot = createBot({
             interaction.data?.options?.[0].options?.[0].name === "school"
           ) {
             const data = db.getSchoolData(interaction.guildId!);
+            if(data === undefined) {
+              return await client.helpers.sendInteractionResponse(
+                interaction.id,
+                interaction.token,
+                {
+                  type: InteractionResponseTypes.ChannelMessageWithSource,
+                  data: { content: "学校が設定されていません" },
+                },
+              );
+            }
             return await client.helpers.sendInteractionResponse(
               interaction.id,
               interaction.token,
               {
                 type: InteractionResponseTypes.ChannelMessageWithSource,
-                data: { content: `設定された学校は${data?.name}(区分は${data?.category === "junior" ? "中学" : "高校"})` },
+                data: { content: `設定された学校は${data.name}(区分は${data.category === "junior" ? "中学" : "高校"})で、AJLは${(await getAJLSchoolData(new Date().getFullYear(), data.category, data.name))?.rank}位です` },
               },
             );
           }

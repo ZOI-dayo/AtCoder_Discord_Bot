@@ -42,37 +42,74 @@ export const setBotChannel = (guild: bigint, channel: bigint) => {
 let schoolsInitialized = false;
 const initSchools = (db: DB) => {
     db.query("CREATE TABLE IF NOT EXISTS schools(id INTEGER PRIMARY KEY AUTOINCREMENT, guild INTEGER, name TEXT, category TEXT)");
-    channelsInitialized = true;
+    schoolsInitialized = true;
 }
 
 export const getSchoolData = (guild: bigint) : {name: string, category: "junior" | "high"} | undefined => {
-    const db = new DB(filename);
-    if(!schoolsInitialized) initSchools(db);
+  const db = new DB(filename);
+  if(!schoolsInitialized) initSchools(db);
 
-    const guild_data = db.query("SELECT * FROM schools WHERE guild=?", [guild]);
-    db.close();
-    if(guild_data.length == 0) {
-        console.warn("学校が登録されていません");
-        return undefined;
-    } else{
-        return {
-            name: guild_data[0][2] as string,
-            category: guild_data[0][3] as "junior" | "high",
-        };
-    }
+  const guild_data = db.query("SELECT * FROM schools WHERE guild=?", [guild]);
+  db.close();
+  console.log(guild)
+  console.log(guild_data)
+  if(guild_data.length == 0) {
+    console.warn("学校が登録されていません");
+    return undefined;
+  } else{
+    return {
+      name: guild_data[0][2] as string,
+      category: guild_data[0][3] as "junior" | "high",
+    };
+  }
 }
 export const setSchoolData = (guild: bigint, name: string, category: "junior" | "high") => {
-    const db = new DB(filename);
-    if(!schoolsInitialized) initSchools(db);
+  const db = new DB(filename);
+  if(!schoolsInitialized) initSchools(db);
 
-    const guild_data = db.query("SELECT * FROM schools WHERE guild=?", [guild]);
-    if(guild_data.length == 0) {
-        db.query("INSERT INTO schools(guild,name,category) VALUES(?,?,?)", [guild, name, category]);
-    } else {
-        db.query("UPDATE schools SET name = ?, category = ? WHERE guild = ?", [name, category, guild]);
-    }
+  const guild_data = db.query("SELECT * FROM schools WHERE guild=?", [guild]);
+  if(guild_data.length == 0) {
+    db.query("INSERT INTO schools(guild,name,category) VALUES(?,?,?)", [guild, name, category]);
+  } else {
+    db.query("UPDATE schools SET name = ?, category = ? WHERE guild = ?", [name, category, guild]);
+  }
 
-    db.close();
+  db.close();
+}
+
+// ---
+
+let ajlInitialized = false;
+const initAJL = (db: DB) => {
+  db.query("CREATE TABLE IF NOT EXISTS ajl(id INTEGER PRIMARY KEY AUTOINCREMENT, school TEXT, category TEXT, rank INTEGER, hash TEXT)");
+  ajlInitialized = true;
+}
+
+export const getAJLHash = (schoolName: string, category: "junior" | "high") : string | undefined => {
+  const db = new DB(filename);
+  if(!ajlInitialized) initAJL(db);
+
+  const db_data = db.query("SELECT * FROM ajl WHERE school=? AND category=?", [schoolName, category]);
+  db.close();
+  if(db_data.length == 0) {
+    console.warn("レートが記録されていません");
+    return undefined;
+  } else {
+    return db_data[0][4] as string;
+  }
+}
+export const setAJLRank = (schoolName: string, category: "junior" | "high", rank: number, hash: string) => {
+  const db = new DB(filename);
+  if(!ajlInitialized) initAJL(db);
+
+  const db_data = db.query("SELECT * FROM ajl WHERE school=? AND category=?", [schoolName, category]);
+  if(db_data.length == 0) {
+    db.query("INSERT INTO ajl(school,category,rank,hash) VALUES(?,?,?,?)", [schoolName, category,rank,hash]);
+  } else {
+    db.query("UPDATE ajl SET rank = ?, hash = ? WHERE school = ? AND category = ?", [rank, hash, schoolName, category]);
+  }
+
+  db.close();
 }
 
 // ---
