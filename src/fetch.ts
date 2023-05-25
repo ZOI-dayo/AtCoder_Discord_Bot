@@ -2,6 +2,12 @@ import { DateTime } from "./datetime.ts";
 
 const cache = new Map<string, {last_updated: number, response: string}>()
 
+/**
+ * 指定されたURLのコンテンツを取得し、キャッシュします
+ * キャッシュの有効期限は1時間です
+ * @param url : 取得するURL
+ * @returns 取得したコンテンツ(文字列)
+ */
 export const cache_fetch = async (url: string): Promise<string> => {
   if(cache.has(url)) {
     if(cache.get(url)!.last_updated + 1000 * 60 * 60 > DateTime.now().localData) {

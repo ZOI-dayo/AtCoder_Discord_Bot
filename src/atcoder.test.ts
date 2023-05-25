@@ -1,8 +1,7 @@
 import { assertEquals, mock_fetch } from "../deps.ts";
-import { getAJLSchools, getProblems, getScheduledContests, getSubmissions } from "./atcoder.ts";
+import { getAJLSchoolData, getAJLSchools, getProblems, getScheduledContests, getSubmissions } from "./atcoder.ts";
 import { DateTime } from "./datetime.ts";
 
-// getSubmissions
 Deno.test("getSubmissions", async () => {
   mock_fetch.install();
   mock_fetch.mock("GET@/atcoder/atcoder-api/v3/user/submissions", () => {
@@ -29,7 +28,6 @@ Deno.test("getSubmissions", async () => {
   }
 })
 
-// getProlbems
 Deno.test("getProlbems", async () => {
   mock_fetch.install();
   mock_fetch.mock("GET@/atcoder/resources/merged-problems.json", () => {
@@ -64,12 +62,10 @@ Deno.test("getProlbems", async () => {
   }
 })
 
-// getScheduledContests
-
 Deno.test("getScheduledContests", async () => {
   mock_fetch.install();
   mock_fetch.mock("GET@/contests/", () => {
-    return new Response(Deno.readTextFileSync("./test_assets/atcoder/contests_en.html"), {
+    return new Response(Deno.readTextFileSync("./test_assets/atcoder/contests_ja.html"), {
       status: 200,
     });
   });
@@ -77,17 +73,15 @@ Deno.test("getScheduledContests", async () => {
     const result = await getScheduledContests();
     assertEquals(result[0], {
       startTime: new DateTime(1685188800000),
-      name: "NS Solutions Corporation Programming Contest 2023（AtCoder Beginner Contest 303）",
+      name: "日鉄ソリューションズプログラミングコンテスト2023（AtCoder Beginner Contest 303）",
       url: "https://atcoder.jp/contests/abc303",
       duration: "01:40",
-      ratedRange: " - 1999"
+      ratedRange: " ~ 1999"
     });
   } finally {
     mock_fetch.uninstall();
   }
 })
-
-// getAJLSChoolData
 
 Deno.test("getAJLSchoolData, getAJLSchools", async () => {
   mock_fetch.install();
@@ -99,6 +93,28 @@ Deno.test("getAJLSchoolData, getAJLSchools", async () => {
   try {
     const result = await getAJLSchools(2023, "high");
     assertEquals(result[1], {
+      rank: 1,
+      name: "筑波大学附属駒場高等学校",
+      prefectures: "東京",
+      score: 1414804,
+      players: [
+        "Forested",
+        "shiomusubi496",
+        "Cyanmond",
+        "primenumber_zz",
+        "ytqm3",
+        "anmichi",
+        "tada72",
+        "Chippppp",
+        "Noboru2020",
+        "kawaii_kawai",
+        "aspi",
+        "Ruwinningson"
+      ],
+      hash: "0dae654d8be34c55f42b629d5cbe4d7bb5eed0fa407b20d0675966a9f8c92e62"
+    });
+    const result_school = await getAJLSchoolData(2023, "high", "筑波大学附属駒場高等学校");
+    assertEquals(result_school, {
       rank: 1,
       name: "筑波大学附属駒場高等学校",
       prefectures: "東京",

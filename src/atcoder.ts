@@ -2,63 +2,75 @@ import { createHash, DOMParser } from "../deps.ts";
 import { DateTime } from "./datetime.ts";
 import { cache_fetch } from "./fetch.ts";
 
-// AtCoder Problemsから、特定ユーザーの一定期間におけるすべての提出を取得する
-export async function getSubmissions(user: string, from_second: number) {
+/**
+ * AtCoder Problemsから取得した提出の型
+ */
+type Submission = {
+  id: number;
+  epoch_second: number;
+  problem_id: string;
+  contest_id: string;
+  user_id: string;
+  language: string;
+  point: number;
+  length: number;
+  result:
+  | "AC"
+  | "WA"
+  | "CE"
+  | "MLE"
+  | "TLE"
+  | "RE"
+  | "OLE"
+  | "IE"
+  | "WJ"
+  | "WR";
+  execution_time: number;
+};
+
+/**
+ * AtCoder Problemsから、特定ユーザーの一定期間におけるすべての提出を取得する
+ * @param user : AtCoderのユーザー名
+ * @param from_second : 取得する期間の開始時刻(UNIX時間)
+ * @returns 取得した提出の配列
+ */
+export const getSubmissions = async (user: string, from_second: number) : Promise<Submission[]> => {
   const response = await (await fetch(
     `https://kenkoooo.com/atcoder/atcoder-api/v3/user/submissions?user=${user}&from_second=${from_second}`,
   )).json();
-
-  type Submission = {
-    id: number;
-    epoch_second: number;
-    problem_id: string;
-    contest_id: string;
-    user_id: string;
-    language: string;
-    point: number;
-    length: number;
-    result:
-      | "AC"
-      | "WA"
-      | "CE"
-      | "MLE"
-      | "TLE"
-      | "RE"
-      | "OLE"
-      | "IE"
-      | "WJ"
-      | "WR";
-    execution_time: number;
-  };
   return response as Submission[];
 }
 
-// AtCoder Problemsから、これまでに出題されたすべての問題を取得する
-export async function getProblems() {
+type Problem = {
+  id: string;
+  contest_id: string;
+  problem_index: string;
+  name: string;
+  title: string;
+  shortest_submission_id: number;
+  shortest_contest_id: string;
+  shortest_user_id: string;
+  fastest_submission_id: number;
+  fastest_contest_id: string;
+  fastest_user_id: string;
+  first_submission_id: number;
+  first_contest_id: string;
+  first_user_id: string;
+  source_code_length: number;
+  execution_time: number;
+  point: null | number;
+  solver_count: number;
+};
+
+/**
+ * AtCoder Problemsから、これまでに出題されたすべての問題を取得する
+ * @returns 取得した問題の配列
+ */
+export const getProblems = async () : Promise<Problem[]> => {
   const response = await (await fetch(
     `https://kenkoooo.com/atcoder/resources/merged-problems.json`,
   )).json();
 
-  type Problem = {
-    id: string;
-    contest_id: string;
-    problem_index: string;
-    name: string;
-    title: string;
-    shortest_submission_id: number;
-    shortest_contest_id: string;
-    shortest_user_id: string;
-    fastest_submission_id: number;
-    fastest_contest_id: string;
-    fastest_user_id: string;
-    first_submission_id: number;
-    first_contest_id: string;
-    first_user_id: string;
-    source_code_length: number;
-    execution_time: number;
-    point: null | number;
-    solver_count: number;
-  };
   return response as Problem[];
 }
 
@@ -81,20 +93,24 @@ export async function getContests() {
 }
 */
 
-// AtCoder公式ページの「予定されたコンテスト」欄を取得する
-export async function getScheduledContests() {
-  const response = await (await fetch("https://atcoder.jp/contests/?lang=en"))
+
+type ScheduledContest = {
+  startTime: DateTime;
+  name: string;
+  url: string;
+  duration: string;
+  ratedRange: string;
+};
+
+/**
+ * AtCoder公式ページの「予定されたコンテスト」欄を取得する
+ */
+export const getScheduledContests = async () : Promise<ScheduledContest[]> => {
+  const response = await (await fetch("https://atcoder.jp/contests/?lang=ja"))
     .text();
   const document = new DOMParser().parseFromString(response, "text/html");
   if (document == null) throw Error("Failed to parse");
 
-  type ScheduledContest = {
-    startTime: DateTime;
-    name: string;
-    url: string;
-    duration: string;
-    ratedRange: string;
-  };
 
   const result: ScheduledContest[] = [];
 
@@ -103,19 +119,19 @@ export async function getScheduledContests() {
       "#contest-table-upcoming > .panel > .table-responsive > table > tbody",
     )!.children,
   ).forEach((element) => {
-    // if(!element.hasChildNodes()) return;
-    const contest: ScheduledContest = {
-      startTime: DateTime.from(element.children[0].textContent),
-      name: element.children[1].children[2].textContent,
-      url: `https://atcoder.jp${
-        element.children[1].children[2].getAttribute("href")
-      }`,
-      duration: element.children[2].innerText,
-      ratedRange: element.children[3].innerText,
-    };
-    // console.log(contest);
-    result.push(contest);
-  });
+      // if(!element.hasChildNodes()) return;
+      const contest: ScheduledContest = {
+        startTime: DateTime.from(element.children[0].textContent),
+        name: element.children[1].children[2].textContent,
+        url: `https://atcoder.jp${
+element.children[1].children[2].getAttribute("href")
+}`,
+        duration: element.children[2].innerText,
+        ratedRange: element.children[3].innerText,
+      };
+      // console.log(contest);
+      result.push(contest);
+    });
   return result;
 }
 
@@ -141,20 +157,30 @@ type AJLSchoolData = {
 };
 
 // AJL
-export async function getAJLSchoolData(year: number, category: "junior" | "high", schoolName: string): Promise<AJLSchoolData | undefined> {
+
+/**
+ * AJLの学校データを取得する
+ */
+export const getAJLSchoolData = async (
+  year: number,
+  category: "junior" | "high",
+  schoolName: string
+): Promise<AJLSchoolData | undefined> =>  {
   return (await getAJLSchools(year, category)).find(s => s.name == schoolName);
 }
 
-export async function getAJLSchools(
+/**
+ * AJLのすべての学校データを取得する
+ */
+export const getAJLSchools = async (
   year: number,
   category: "junior" | "high",
-): Promise<Array<AJLSchoolData>> {
+): Promise<Array<AJLSchoolData>> => {
   const response =
-    await (await cache_fetch(
+    await cache_fetch(
       `https://img.atcoder.jp/ajl${year}/output_${category}_school.html`,
-    ));
+    );
   const document = new DOMParser().parseFromString(response, "text/html");
-  // console.log(document?.textContent);
   const schoolElement = Array.from(
     document?.getElementsByTagName("tbody")[0].children!,
   );
