@@ -64,6 +64,7 @@ export async function getProblems() {
 
 // AtCoder Problemsから、開催済みのすべてのコンテストのリストを取得する
 // 過去データしか返さないことに注意
+/*
 export async function getContests() {
   type Contest = {
     id: string;
@@ -78,6 +79,7 @@ export async function getContests() {
   // console.log(response);
   return response as Contest[];
 }
+*/
 
 // AtCoder公式ページの「予定されたコンテスト」欄を取得する
 export async function getScheduledContests() {
@@ -114,16 +116,10 @@ export async function getScheduledContests() {
     // console.log(contest);
     result.push(contest);
   });
-  result.push({
-    startTime: DateTime.from("2023/05/11 21:00 +0900"),
-    name: "テスト",
-    url: "https://example.com/",
-    duration: "01:40",
-    ratedRange: "~1999",
-  });
   return result;
 }
 
+/*
 export async function getStandings(contest: string) {
   // 最近のアップデートのせいでログインしないと見れない
   // Cookie食べさせる?
@@ -133,6 +129,7 @@ export async function getStandings(contest: string) {
   console.log(response);
   return response;
 }
+*/
 
 type AJLSchoolData = {
   rank: number;
@@ -148,7 +145,6 @@ export async function getAJLSchoolData(year: number, category: "junior" | "high"
   return (await getAJLSchools(year, category)).find(s => s.name == schoolName);
 }
 
-// あまりに遅ければcacheする
 export async function getAJLSchools(
   year: number,
   category: "junior" | "high",
@@ -158,7 +154,7 @@ export async function getAJLSchools(
       `https://img.atcoder.jp/ajl${year}/output_${category}_school.html`,
     ));
   const document = new DOMParser().parseFromString(response, "text/html");
-  console.log(document?.textContent);
+  // console.log(document?.textContent);
   const schoolElement = Array.from(
     document?.getElementsByTagName("tbody")[0].children!,
   );

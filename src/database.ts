@@ -51,8 +51,8 @@ export const getSchoolData = (guild: bigint) : {name: string, category: "junior"
 
   const guild_data = db.query("SELECT * FROM schools WHERE guild=?", [guild]);
   db.close();
-  console.log(guild)
-  console.log(guild_data)
+  // console.log(guild)
+  // console.log(guild_data)
   if(guild_data.length == 0) {
     console.warn("学校が登録されていません");
     return undefined;
