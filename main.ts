@@ -44,7 +44,15 @@ const bot = createBot({
       */
 
       // console.log(payload.guilds);
-      checkAJLRankChanged(bot, payload.guilds)
+
+      DateTime.registerScheduledIntervalEvent(
+        () => checkAJLRankChanged(bot, payload.guilds),
+        DateTime.nextInterval(
+          { hour: 0 },
+          HOUR,
+        ),
+        HOUR,
+      );
       /*
       DateTime.registerScheduledIntervalEvent(
         () => checkAJLRankChanged(bot, payload.guilds),

@@ -85,7 +85,7 @@ const initAJL = (db: DB) => {
   ajlInitialized = true;
 }
 
-export const getAJLHash = (schoolName: string, category: "junior" | "high") : string | undefined => {
+export const getAJLHash = (schoolName: string, category: "junior" | "high") : {rank: number, hash:string} | undefined => {
   const db = new DB(filename);
   if(!ajlInitialized) initAJL(db);
 
@@ -95,7 +95,7 @@ export const getAJLHash = (schoolName: string, category: "junior" | "high") : st
     console.warn("レートが記録されていません");
     return undefined;
   } else {
-    return db_data[0][4] as string;
+    return {rank: db_data[0][3] as number, hash: db_data[0][4] as string};
   }
 }
 export const setAJLRank = (schoolName: string, category: "junior" | "high", rank: number, hash: string) => {
