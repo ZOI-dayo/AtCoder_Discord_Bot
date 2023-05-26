@@ -8,12 +8,13 @@ import {
 import { Secret } from "./secret.ts";
 import * as db from "./src/database.ts";
 import { DateTime, DAY, HOUR } from "./src/datetime.ts";
-import { getAJLSchoolData } from "./src/atcoder.ts";
+import { getAJLSchoolData, getContestResult } from "./src/atcoder.ts";
 import {
   checkNewContest,
   contestsNotifyTime,
 } from "./src/functions/notify_contest.ts";
 import { checkAJLRankChanged } from "./src/functions/ajl_notify.ts";
+import { registerRateChanged } from "./src/functions/rate_change.ts";
 
 const bot = createBot({
   token: Secret.DISCORD_TOKEN,
@@ -53,6 +54,7 @@ const bot = createBot({
         ),
         HOUR,
       );
+      getContestResult("abc301");
       /*
       DateTime.registerScheduledIntervalEvent(
         () => checkAJLRankChanged(bot, payload.guilds),
@@ -124,6 +126,48 @@ const bot = createBot({
               },
             ],
           },
+          {
+            type: ApplicationCommandOptionTypes.SubCommandGroup,
+            name: "register",
+            description: "ユーザーデータを登録します",
+            options: [
+              {
+                type: ApplicationCommandOptionTypes.SubCommand,
+                name: "atcoder",
+                description: "AtCoderのユーザーデータを登録します",
+                options: [
+                  {
+                    type: ApplicationCommandOptionTypes.String,
+                    name: "name",
+                    description: "AtCoderのユーザー名を入力してください",
+                    required: true,
+                  },
+                ],
+              },
+            ],
+          },
+          /*
+          {
+            type: ApplicationCommandOptionTypes.SubCommandGroup,
+            name: "debug",
+            description: "デバッグコマンド",
+            options: [
+              {
+                type: ApplicationCommandOptionTypes.SubCommand,
+                name: "rate_change",
+                description: "rate_change",
+                options: [
+                  {
+                    type: ApplicationCommandOptionTypes.String,
+                    name: "contest",
+                    description: "example: abc301",
+                    required: true,
+                  },
+                ],
+              },
+            ],
+          },
+          */
         ],
       });
     },
@@ -189,6 +233,30 @@ const bot = createBot({
               {
                 type: InteractionResponseTypes.ChannelMessageWithSource,
                 data: { content: `設定された学校は${data.name}(区分は${data.category === "junior" ? "中学" : "高校"})で、AJLは${(await getAJLSchoolData(new Date().getFullYear(), data.category, data.name))?.rank}位です` },
+              },
+            );
+          }
+        } else if(interaction.data?.options?.[0].name === "register") {
+          if (interaction.data?.options?.[0].options?.[0].name === "atcoder") {
+            db.addAtCoderPlayer(interaction.guildId!, interaction.data?.options?.[0].options?.[0].options?.[0].value as string);
+            return await client.helpers.sendInteractionResponse(
+              interaction.id,
+              interaction.token,
+              {
+                type: InteractionResponseTypes.ChannelMessageWithSource,
+                data: { content: "設定完了!" },
+              },
+            );
+          }
+        } else if(interaction.data?.options?.[0].name === "debug") {
+          if (interaction.data?.options?.[0].options?.[0].name === "rate_change") {
+            registerRateChanged(bot, [interaction.guildId!], interaction.data?.options?.[0].options?.[0].options?.[0].value as string);
+            return await client.helpers.sendInteractionResponse(
+              interaction.id,
+              interaction.token,
+              {
+                type: InteractionResponseTypes.ChannelMessageWithSource,
+                data: { content: "end" },
               },
             );
           }

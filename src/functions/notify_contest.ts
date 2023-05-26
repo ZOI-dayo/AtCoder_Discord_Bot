@@ -1,7 +1,8 @@
 import { Bot } from "../../deps.ts";
 import * as atcoder from "../atcoder.ts";
-import { DAY, TimeDelta } from "../datetime.ts";
+import { DateTime, DAY, TimeDelta } from "../datetime.ts";
 import * as db from "../database.ts";
+import { registerRateChanged } from "./rate_change.ts";
 
 export const contestsNotifyTime: TimeDelta = {
   hour: 7,
@@ -18,19 +19,18 @@ export const checkNewContest = async (bot: Bot, guilds: bigint[]) => {
   }
   contests.forEach((contest) => {
     guilds.forEach((guild) => {
-      // コンテスト通知を送る、という関数
-      const announceContest = async () => {
+      (async () => {
         const channel = await bot.helpers.getChannel(db.getBotChannel(guild));
         if (channel == null) return;
         bot.helpers.sendMessage(channel.id, {
           content: `本日${
-            contest.startTime.format("HH:mm")
-          }、AtCoderでコンテストが開催されます\n${contest.url}`,
+contest.startTime.format("HH:mm")
+}、AtCoderでコンテストが開催されます\n${contest.url}`,
         });
-      };
-
-      // コンテストのある日の朝9時にDiscordにアナウンス
-      announceContest();
+      })();
+      DateTime.registerEvent(() => {
+        registerRateChanged(bot, guilds, contest.url.split("/").slice(-1)[0]);
+      }, contest.startTime);
     });
   });
 };

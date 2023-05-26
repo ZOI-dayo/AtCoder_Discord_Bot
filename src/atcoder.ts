@@ -135,6 +135,33 @@ element.children[1].children[2].getAttribute("href")
   return result;
 }
 
+export type ContestResult = {
+  IsRated: boolean,
+  Place: number,
+  OldRating: number,
+  NewRating: number,
+  Performance: number,
+  ContestName: string,
+  ContestNameEn: string,
+  ContestScreenName: string,
+  EndTime: string,
+  ContestType: number,
+  UserName: string,
+  UserScreenName: string,
+  Country: string,
+  Affiliation: string,
+  Rating: number,
+  Competitions: number,
+  AtCoderRank: number
+}
+
+/**
+ * AtCoderの特定のコンテストの結果を取得する
+ */
+export const getContestResult = async (contest: string) : Promise<ContestResult[]> => {
+  return await (await fetch(`https://atcoder.jp/contests/${contest}/results/json`)).json() as ContestResult[];
+}
+
 /*
 export async function getStandings(contest: string) {
   // 最近のアップデートのせいでログインしないと見れない

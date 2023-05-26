@@ -4,45 +4,46 @@ const filename = "bot_data.db";
 
 let channelsInitialized = false;
 const initChannels = (db: DB) => {
-    db.query("CREATE TABLE IF NOT EXISTS channels(id INTEGER PRIMARY KEY AUTOINCREMENT, guild INTEGER, channel INTEGER)");
-    channelsInitialized = true;
+  db.query("CREATE TABLE IF NOT EXISTS channels(id INTEGER PRIMARY KEY AUTOINCREMENT, guild INTEGER, channel INTEGER)");
+  channelsInitialized = true;
 }
 
 export const getBotChannel = (guild: bigint) : bigint => {
-    const db = new DB(filename);
-    if(!channelsInitialized) initChannels(db);
+  const db = new DB(filename);
+  if(!channelsInitialized) initChannels(db);
 
-    const guild_data = db.query("SELECT * FROM channels WHERE guild=?", [guild]);
-    db.close();
-    if(guild_data.length == 0) {
-        console.warn("送信先チャンネルが登録されていません");
-        return BigInt(-1);
-    } else{
-        return guild_data[0][2] as bigint;
-    }
+  const guild_data = db.query("SELECT * FROM channels WHERE guild=?", [guild]);
+  db.close();
+  // console.log(guild_data);
+  if(guild_data.length == 0) {
+    console.warn("送信先チャンネルが登録されていません");
+    return BigInt(-1);
+  } else{
+    return guild_data[0][2] as bigint;
+  }
 }
 export const setBotChannel = (guild: bigint, channel: bigint) => {
-    const db = new DB(filename);
-    if(!channelsInitialized) initChannels(db);
+  const db = new DB(filename);
+  if(!channelsInitialized) initChannels(db);
 
-    const guild_data = db.query("SELECT * FROM channels WHERE guild=?", [guild]);
-    if(guild_data.length == 0) {
-        db.query("INSERT INTO channels(guild,channel) VALUES(?,?)", [guild, channel]);
-    } else {
-        console.log(channel);
-        console.log(guild);
-        db.query("UPDATE channels SET channel = ? WHERE guild = ?", [channel, guild]);
-    }
+  const guild_data = db.query("SELECT * FROM channels WHERE guild=?", [guild]);
+  if(guild_data.length == 0) {
+    db.query("INSERT INTO channels(guild,channel) VALUES(?,?)", [guild, channel]);
+  } else {
+    console.log(channel);
+    console.log(guild);
+    db.query("UPDATE channels SET channel = ? WHERE guild = ?", [channel, guild]);
+  }
 
-    db.close();
+  db.close();
 }
 
 // ---
 
 let schoolsInitialized = false;
 const initSchools = (db: DB) => {
-    db.query("CREATE TABLE IF NOT EXISTS schools(id INTEGER PRIMARY KEY AUTOINCREMENT, guild INTEGER, name TEXT, category TEXT)");
-    schoolsInitialized = true;
+  db.query("CREATE TABLE IF NOT EXISTS schools(id INTEGER PRIMARY KEY AUTOINCREMENT, guild INTEGER, name TEXT, category TEXT)");
+  schoolsInitialized = true;
 }
 
 export const getSchoolData = (guild: bigint) : {name: string, category: "junior" | "high"} | undefined => {
@@ -109,6 +110,34 @@ export const setAJLRank = (schoolName: string, category: "junior" | "high", rank
     db.query("UPDATE ajl SET rank = ?, hash = ? WHERE school = ? AND category = ?", [rank, hash, schoolName, category]);
   }
 
+  db.close();
+}
+
+// ---
+
+let atcoderPlayersInitialized = false;
+const initAtCoderPlayers = (db: DB) => {
+  db.query("CREATE TABLE IF NOT EXISTS atcoder_players(id INTEGER PRIMARY KEY AUTOINCREMENT, guild INTEGER, name TEXT)");
+  atcoderPlayersInitialized = true;
+}
+
+export const getAtCoderPlayers = (guild: bigint) : string[] => {
+  const db = new DB(filename);
+  if(!atcoderPlayersInitialized) initAtCoderPlayers(db);
+
+  const guild_data = db.query("SELECT * FROM atcoder_players WHERE guild=?", [guild]);
+  db.close();
+  return guild_data.map((data) => data[2] as string);
+}
+
+export const addAtCoderPlayer = (guild: bigint, name: string) => {
+  const db = new DB(filename);
+  if(!atcoderPlayersInitialized) initAtCoderPlayers(db);
+
+  const guild_data = db.query("SELECT * FROM atcoder_players WHERE guild=? AND name=?", [guild, name]);
+  if(guild_data.length == 0) {
+    db.query("INSERT INTO atcoder_players(guild,name) VALUES(?,?)", [guild, name]);
+  }
   db.close();
 }
 
