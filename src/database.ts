@@ -117,27 +117,30 @@ export const setAJLRank = (schoolName: string, category: "junior" | "high", rank
 
 let atcoderPlayersInitialized = false;
 const initAtCoderPlayers = (db: DB) => {
-  db.query("CREATE TABLE IF NOT EXISTS atcoder_players(id INTEGER PRIMARY KEY AUTOINCREMENT, guild INTEGER, name TEXT)");
+  db.query("CREATE TABLE IF NOT EXISTS atcoder_players(id INTEGER PRIMARY KEY AUTOINCREMENT, guild INTEGER, name TEXT, discord_id INTEGER)");
   atcoderPlayersInitialized = true;
 }
 
-export const getAtCoderPlayers = (guild: bigint) : string[] => {
+export const getAtCoderPlayers = (guild: bigint) : {name: string, discord_id: bigint}[] => {
   const db = new DB(filename);
   if(!atcoderPlayersInitialized) initAtCoderPlayers(db);
 
   const guild_data = db.query("SELECT * FROM atcoder_players WHERE guild=?", [guild]);
   db.close();
-  return guild_data.map((data) => data[2] as string);
+  return guild_data.map((data) => {return {name: data[2] as string, discord_id: data[3] as bigint}});
 }
 
-export const addAtCoderPlayer = (guild: bigint, name: string) => {
+export const addAtCoderPlayer = (guild: bigint, name: string, discord_id: bigint) => {
   const db = new DB(filename);
   if(!atcoderPlayersInitialized) initAtCoderPlayers(db);
 
-  const guild_data = db.query("SELECT * FROM atcoder_players WHERE guild=? AND name=?", [guild, name]);
+  const guild_data = db.query("SELECT * FROM atcoder_players WHERE guild=? AND discord_id=?", [guild, name]);
   if(guild_data.length == 0) {
-    db.query("INSERT INTO atcoder_players(guild,name) VALUES(?,?)", [guild, name]);
+    db.query("INSERT INTO atcoder_players(guild,name,discord_id) VALUES(?,?,?)", [guild, name, discord_id]);
+  } else {
+    db.query("UPDATE atcoder_players SET name = ? WHERE guild = ? AND discord_id = ?", [name, guild, discord_id]);
   }
+
   db.close();
 }
 

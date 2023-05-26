@@ -238,7 +238,7 @@ const bot = createBot({
           }
         } else if(interaction.data?.options?.[0].name === "register") {
           if (interaction.data?.options?.[0].options?.[0].name === "atcoder") {
-            db.addAtCoderPlayer(interaction.guildId!, interaction.data?.options?.[0].options?.[0].options?.[0].value as string);
+            db.addAtCoderPlayer(interaction.guildId!, interaction.data?.options?.[0].options?.[0].options?.[0].value as string, interaction.member!.user?.id);
             return await client.helpers.sendInteractionResponse(
               interaction.id,
               interaction.token,

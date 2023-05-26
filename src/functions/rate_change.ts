@@ -16,7 +16,7 @@ export const registerRateChanged = (bot: Bot, guilds: bigint[], contest: string)
       const results : ContestResult[] = [];
       const players = db.getAtCoderPlayers(guild);
       players.forEach((player) => {
-        const user_data = contest_result.find((result) => result.UserScreenName === player);
+        const user_data = contest_result.find((result) => result.UserScreenName === player.name);
         if(user_data == undefined) return;
         results.push(user_data);
       });
