@@ -7,7 +7,7 @@ import {
 } from "./deps.ts";
 import { Secret } from "./secret.ts";
 import * as db from "./src/database.ts";
-import { DateTime, DAY, HOUR } from "./src/datetime.ts";
+import { DateTime, DAY, HOUR, MINUTE } from "./src/datetime.ts";
 import { getAJLSchoolData, getContestResult } from "./src/atcoder.ts";
 import {
   checkNewContest,
@@ -50,11 +50,11 @@ const bot = createBot({
         () => checkAJLRankChanged(bot, payload.guilds),
         DateTime.nextInterval(
           { hour: 0 },
-          HOUR,
+          MINUTE * 10,
         ),
-        HOUR,
+        MINUTE,
       );
-      getContestResult("abc301");
+      // getContestResult("abc301");
       /*
       DateTime.registerScheduledIntervalEvent(
         () => checkAJLRankChanged(bot, payload.guilds),
