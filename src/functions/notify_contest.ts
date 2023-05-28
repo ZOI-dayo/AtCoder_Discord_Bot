@@ -29,7 +29,7 @@ contest.startTime.format("HH:mm")
         });
       })();
       DateTime.registerEvent(() => {
-        registerRateChanged(bot, guilds, contest.url.split("/").slice(-1)[0]);
+        registerRateChanged(bot, guild, contest.url.split("/").slice(-1)[0]);
       }, contest.startTime);
     });
   });
