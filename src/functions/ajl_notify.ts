@@ -4,7 +4,7 @@ import * as db from "../database.ts";
 
 export const checkAJLRankChanged = async (bot: Bot, guilds: bigint[]) => {
   console.log("AJLのレート変動がないか確認中...");
-  guilds.forEach(guild => {
+  guilds.forEach(async guild => {
     const school = db.getSchoolData(guild);
     if(school == undefined) return;
     // TODO
