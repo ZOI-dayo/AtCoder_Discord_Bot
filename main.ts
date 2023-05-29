@@ -127,22 +127,15 @@ const bot = createBot({
             ],
           },
           {
-            type: ApplicationCommandOptionTypes.SubCommandGroup,
+            type: ApplicationCommandOptionTypes.SubCommand,
             name: "register",
-            description: "ユーザーデータを登録します",
+            description: "AtCoderのユーザーデータを登録します",
             options: [
               {
-                type: ApplicationCommandOptionTypes.SubCommand,
-                name: "atcoder",
-                description: "AtCoderのユーザーデータを登録します",
-                options: [
-                  {
-                    type: ApplicationCommandOptionTypes.String,
-                    name: "name",
-                    description: "AtCoderのユーザー名を入力してください",
-                    required: true,
-                  },
-                ],
+                type: ApplicationCommandOptionTypes.String,
+                name: "name",
+                description: "AtCoderのユーザー名を入力してください",
+                required: true,
               },
             ],
           },
@@ -237,17 +230,15 @@ const bot = createBot({
             );
           }
         } else if(interaction.data?.options?.[0].name === "register") {
-          if (interaction.data?.options?.[0].options?.[0].name === "atcoder") {
-            db.addAtCoderPlayer(interaction.guildId!, interaction.data?.options?.[0].options?.[0].options?.[0].value as string, interaction.member!.user?.id);
-            return await client.helpers.sendInteractionResponse(
-              interaction.id,
-              interaction.token,
-              {
-                type: InteractionResponseTypes.ChannelMessageWithSource,
-                data: { content: "設定完了!" },
-              },
-            );
-          }
+          db.addAtCoderPlayer(interaction.guildId!, interaction.data?.options?.[0].options?.[0].value as string, interaction.member!.user?.id);
+          return await client.helpers.sendInteractionResponse(
+            interaction.id,
+            interaction.token,
+            {
+              type: InteractionResponseTypes.ChannelMessageWithSource,
+              data: { content: "設定完了!" },
+            },
+          );
         } else if(interaction.data?.options?.[0].name === "debug") {
           if (interaction.data?.options?.[0].options?.[0].name === "rate_change") {
             registerRateChanged(bot, [interaction.guildId!], interaction.data?.options?.[0].options?.[0].options?.[0].value as string);
