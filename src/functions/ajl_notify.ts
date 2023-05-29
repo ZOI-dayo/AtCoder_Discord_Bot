@@ -4,16 +4,16 @@ import * as db from "../database.ts";
 
 export const checkAJLRankChanged = async (bot: Bot, guilds: bigint[]) => {
   console.log("AJLのレート変動がないか確認中...");
-  for(const guild of guilds) {
+  guilds.forEach(guild => {
     const school = db.getSchoolData(guild);
-    if(school == undefined) continue;
+    if(school == undefined) return;
     // TODO
     const ajl_hash = db.getAJLHash(school.name, school.category);
     const latest_data = await atcoder.getAJLSchoolData(new Date().getFullYear(), school.category, school.name);
-    if(latest_data == undefined) continue;
+    if(latest_data == undefined) return;
     if(ajl_hash == undefined) {
       db.setAJLRank(school.name, school.category, latest_data.rank, latest_data.hash);
-      continue;
+      return;
     }
     if(ajl_hash.hash !== latest_data.hash) {
       console.log("AJLのレート変動がありました。")
@@ -28,6 +28,5 @@ export const checkAJLRankChanged = async (bot: Bot, guilds: bigint[]) => {
     } else {
       console.log("AJLのレート変動はありませんでした。")
     }
-    break;
-  }
+  });
 };
