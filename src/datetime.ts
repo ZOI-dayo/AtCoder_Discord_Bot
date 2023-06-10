@@ -80,11 +80,15 @@ export class DateTime {
   ) {
     console.log(`イベントを${begin.format("yyyy/MM/dd HH:mm")}に予約しました`);
     const run = () => {
+      try {
       callback();
+      } catch(e) {
+        console.error(e);
+      }
       setTimeout(run, interval);
-      console.log(`次の${run}の実行は${new DateTime(DateTime.now().data + interval).format("yyyy/MM/dd HH:mm")}`)
+      // console.log(`次の${run}の実行は${new DateTime(DateTime.now().data + interval).format("yyyy/MM/dd HH:mm")}`)
     };
-    console.log(`初回実行は${begin.distanseFromNow()}ms後です`);
+    // console.log(`初回実行は${begin.distanseFromNow()}ms後です`);
     setTimeout(run, begin.distanseFromNow());
   }
   static registerIntervalEvent(callback: () => void, interval: number) {
