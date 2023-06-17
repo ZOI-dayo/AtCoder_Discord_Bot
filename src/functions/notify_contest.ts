@@ -3,6 +3,7 @@ import * as atcoder from "../atcoder.ts";
 import { DateTime, DAY, TimeDelta } from "../datetime.ts";
 import * as db from "../database.ts";
 import { registerRateChanged } from "./rate_change.ts";
+import { registerClarChanged } from "./clar.ts";
 
 export const contestsNotifyTime: TimeDelta = {
   hour: 7,
@@ -28,8 +29,13 @@ contest.startTime.format("HH:mm")
 }、AtCoderでコンテストが開催されます\n${contest.url}`,
         });
       })();
+      const contest_id = contest.url.split("/").slice(-1)[0];
       DateTime.registerEvent(() => {
-        registerRateChanged(bot, guild, contest.url.split("/").slice(-1)[0]);
+        registerRateChanged(bot, guild, contest_id);
+        registerClarChanged(bot, guild, contest_id, contest.startTime.add({
+          hour: parseInt(contest.duration.split(":")[0]),
+          minute: parseInt(contest.duration.split(":")[1])
+        }));
       }, contest.startTime);
     });
   });

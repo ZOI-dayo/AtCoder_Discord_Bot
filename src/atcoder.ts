@@ -162,6 +162,44 @@ export const getContestResult = async (contest: string) : Promise<ContestResult[
   return await (await fetch(`https://atcoder.jp/contests/${contest}/results/json`)).json() as ContestResult[];
 }
 
+export type Clar = {
+  contest_id: string,
+  taskName: string,
+  username: string,
+  clarfication: string,
+  response: string,
+  public: boolean,
+  createdTime: DateTime,
+  modifiedTime: DateTime,
+}
+/**
+ * AtCoderのコンテストのClarを取得する
+ */
+export const getClar = async (contest_id: string) : Promise<Clar[]> => {
+  const response = await (await fetch(`https://atcoder.jp/contests/${contest_id}/clarifications`))
+    .text();
+  const document = new DOMParser().parseFromString(response, "text/html");
+  if (document == null) throw Error("Failed to parse");
+  const result: Clar[] = [];
+  Array.from(
+    document.querySelector(
+      "#main-container > .row > :nth-child(2) > div > table > tbody",
+    )!.children,
+  ).forEach((element) => {
+      const clar: Clar = {
+        contest_id: contest_id,
+        taskName: element.children[0].textContent.trim(),
+        username: element.children[1].textContent.trim(),
+        clarfication: element.children[2].textContent.trim(),
+        response: element.children[3].textContent.trim(),
+        public: element.children[4].textContent.trim() === "Yes",
+        createdTime: DateTime.from(element.children[5].textContent.trim()),
+        modifiedTime: DateTime.from(element.children[6].textContent.trim()),
+      };
+      result.push(clar);
+    });
+  return result;
+}
 /*
 export async function getStandings(contest: string) {
   // 最近のアップデートのせいでログインしないと見れない

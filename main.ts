@@ -8,7 +8,7 @@ import {
 import { Secret } from "./secret.ts";
 import * as db from "./src/database.ts";
 import { DateTime, DAY, HOUR, MINUTE } from "./src/datetime.ts";
-import { getAJLSchoolData, getContestResult } from "./src/atcoder.ts";
+import { getAJLSchoolData, getClar, getContestResult } from "./src/atcoder.ts";
 import {
   checkNewContest,
   contestsNotifyTime,
