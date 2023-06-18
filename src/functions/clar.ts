@@ -24,6 +24,12 @@ export const registerClarChanged = async (bot: Bot, guild: bigint, contest: stri
           content: `新しいClarが投稿されました\nQ:\n${clar.clarfication}\nA:\n${clar.response}`,
         });
       });
+    } catch (e) {
+      console.error(e);
+      if(latest_clar === cached_clar) {
+        setTimeout(sendMessage, MINUTE);
+        return;
+      }
     }
   };
   sendMessage();
