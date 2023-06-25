@@ -181,10 +181,10 @@ export const getClar = async (contest_id: string) : Promise<Clar[]> => {
   const document = new DOMParser().parseFromString(response, "text/html");
   if (document == null) throw Error("Failed to parse");
   const result: Clar[] = [];
+  const tbody = document.querySelector("#main-container > .row > :nth-child(2) > div > table > tbody");
+  if(tbody == undefined) return [];
   Array.from(
-    document.querySelector(
-      "#main-container > .row > :nth-child(2) > div > table > tbody",
-    )!.children,
+    tbody!.children,
   ).forEach((element) => {
       const clar: Clar = {
         contest_id: contest_id,
