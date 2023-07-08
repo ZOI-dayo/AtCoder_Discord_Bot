@@ -9,7 +9,7 @@ export const registerRateChanged = (bot: Bot, guild: bigint, contest: string) =>
     console.log(`${contest}のレート変動がないか確認中...`);
     const contest_result = await atcoder.getContestResult(contest);
     if(contest_result.length == 0) {
-      setTimeout(sendMessage, MINUTE);
+      setTimeout(sendMessage, MINUTE * 5);
       return;
     }
     const results : ContestResult[] = [];

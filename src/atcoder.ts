@@ -159,7 +159,12 @@ export type ContestResult = {
  * AtCoderの特定のコンテストの結果を取得する
  */
 export const getContestResult = async (contest: string) : Promise<ContestResult[]> => {
-  return await (await fetch(`https://atcoder.jp/contests/${contest}/results/json`)).json() as ContestResult[];
+  try {
+    return await (await fetch(`https://atcoder.jp/contests/${contest}/results/json`)).json() as ContestResult[];
+  } catch(e) {
+    console.error(e);
+    return [];
+  }
 }
 
 export type Clar = {
